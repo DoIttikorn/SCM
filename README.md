@@ -1,1 +1,1 @@
-# SCM
+# smart charge monitoring (SCM)
