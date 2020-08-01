@@ -17,11 +17,10 @@ def Getjson(str: str) -> dict:
 
 
 def CreateTimeDateValue(timeValues: list) -> list:
-    for xran in timeValues:
+    for index, xran in enumerate(timeValues):
         timeStamp = xran[0] // 1000
         dt_object = datetime.fromtimestamp(timeStamp)
-        timeValues[0][0] = dt_object
-
+        timeValues[index][0] = dt_object
     return timeValues
 
 
@@ -45,7 +44,7 @@ def SaveValuesExcel(result: list, columnName: str, address):
 if __name__ == "__main__":
     t0 = time.time()
 
-    str = 'https://api.netpie.io/feed/Rapoo?apikey=8YzoLCrqTRZXLv4YVW5IvmGJoEgXByuI&granularity=15minutes&since=1year&fbclid=IwAR2JA_UpUFyW_dvOpxG1s7QdB021EzpxXa7EDlM5vgnSwmBaN1ueOuo0DjQ'
+    str = 'https://api.netpie.io/feed/Rapoo?apikey=8YzoLCrqTRZXLv4YVW5IvmGJoEgXByuI&granularity=1minutes&since=1year&fbclid=IwAR2JA_UpUFyW_dvOpxG1s7QdB021EzpxXa7EDlM5vgnSwmBaN1ueOuo0DjQ'
     # Get text in String
     StringInformationWeb = Getjson(str)
     # เป็นค่าภายในให้เป็น ่json ใน python อยู่ในรูป dict
