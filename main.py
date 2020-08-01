@@ -1,5 +1,5 @@
 """
-    pip3 install requests  datetime Openpyxl
+    pip3 install requests  datetime Openpyxl pylint
     
 """
 import json
@@ -47,18 +47,24 @@ def CheckOSAndFindAddressDesktop() -> str:
 def SaveValuesExcel(result: dict, address: str, filename: str):
     wb = Workbook()
     sheet = wb.active
-    for index,item in enumerate(result):
+    for index, item in enumerate(result):
         ws = wb.create_sheet(item)
         dataInExcel = result[item]
-        # dataInExcel
+        
+        cellA1 = ws.cell(row=1, column=1)
+        cellA1.value = "Date and Time"
+        cellA1.font = cellA1.font.copy(bold=True)
+        cellA2 = ws.cell(row=1, column=2)
+        if index == 0:
+            cellA2.value = "Lux"
+        elif index == 1:
+            cellA2.value = "Celsius"
+        cellA2.font = cellA2.font.copy(bold=True)
         for i in dataInExcel:
-            cellA1 = ws.cell(row=1,column=1)
-            cellA1.value = "Date and Time"
-            cellA1.font = cellA1.font.copy(bold=True)
 
             ws.append(i)
         # print("index  : ",index,"su : ",item,sep="  ")
-        
+
         # print(result[item])
     p = Path(address, filename)
     wb.save(p)
