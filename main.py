@@ -7,6 +7,7 @@ import time
 import os
 import requests
 import platform
+from pathlib import Path
 from datetime import datetime
 from openpyxl import Workbook, worksheet
 
@@ -24,26 +25,49 @@ def CreateTimeDateValue(timeValues: list) -> list:
     return timeValues
 
 
+def IsOS():
+    nameOS = platform.system()
+    if nameOS == 'Wondows':
+        return True
+    elif nameOS == 'Linux':
+        return False
+
+
 def CheckOSAndFindAddressDesktop() -> str:
     name = platform.system()
     if name == 'Windows':
         DesktopAddress = os.path.join(os.path.join(
             os.environ['USERPROFILE']), 'Desktop')
-        # Prints: C:\Users\sdkca\Desktop
-        # print("The Desktop path is: " + desktop)
     if name == 'Linux':
         DesktopAddress = os.path.join(
             os.path.join(os.environ['HOME']), 'Desktop')
     return DesktopAddress
 
 
-def SaveValuesExcel(result: list, columnName: str, address):
-    pass
+def SaveValuesExcel(result: dict, address: str, filename: str):
+    wb = Workbook()
+    sheet = wb.active
+    for index,item in enumerate(result):
+        ws = wb.create_sheet(item)
+        dataInExcel = result[item]
+        # dataInExcel
+        for i in dataInExcel:
+            cellA1 = ws.cell(row=1,column=1)
+            cellA1.value = "Date and Time"
+            cellA1.font = cellA1.font.copy(bold=True)
+
+            ws.append(i)
+        # print("index  : ",index,"su : ",item,sep="  ")
+        
+        # print(result[item])
+    p = Path(address, filename)
+    wb.save(p)
 
 
 if __name__ == "__main__":
     t0 = time.time()
 
+    fileName = 'result.xlsx'
     str = 'https://api.netpie.io/feed/Rapoo?apikey=8YzoLCrqTRZXLv4YVW5IvmGJoEgXByuI&granularity=1minutes&since=1year&fbclid=IwAR2JA_UpUFyW_dvOpxG1s7QdB021EzpxXa7EDlM5vgnSwmBaN1ueOuo0DjQ'
     # Get text in String
     StringInformationWeb = Getjson(str)
@@ -51,19 +75,20 @@ if __name__ == "__main__":
     jsonContent = StringInformationWeb.json()
     # เลือกส่วนที่เป็นข้อมูล
     data = jsonContent.get('data')
+    # หาที่อยู่ desktop เพื่อที่จะบันทึก excel
+    desktopAddress = CheckOSAndFindAddressDesktop()
+    itemDict = {}
     # วนลูปเพื่อเอาค่าแต่ละ ข้อมูลออกมา เช่น อุณหภูมิ ,ความดัน
-    for typeData in data:
+    for target, typeData in enumerate(data):
         # ค่าตัวเลขจะอยู่ใน values
         values = typeData.get('values')
         #  ชื่อคอลัมเอาไว้ใส่ใน excel
         columnName = typeData.get('attr')
         #  เอาค่าเวลากับค่าผลลัพธ์ส่งไปเป็น list เป็น timestamp เป็นวันเวลาปกติ เก้บในตัวแปร succ
         succ = CreateTimeDateValue(values)
-        desktopAddress = CheckOSAndFindAddressDesktop()
-        # ทำการ save ค่าลงใน excel
-        SaveValuesExcel(succ, columnName, desktopAddress)
-
+        itemDict[columnName] = succ
+    # ทำการ save ค่าลงใน excel
+    SaveValuesExcel(itemDict, desktopAddress, fileName)
     t1 = time.time()
-
     total = t1-t0
     print("\n\n Performance python file : ", total)
